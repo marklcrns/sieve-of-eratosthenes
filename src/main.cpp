@@ -10,20 +10,21 @@
 ///////////////////////////// Function Prototyes ///////////////////////////////
 
 static void show_usage(const std::string& name);
-static void print_console_colors();
 
 void sieve_of_eratosthenes(const std::vector<int>& vec, std::set<int>& primes);
-auto prompt_int_input() -> int;
+auto prompt_int_input() -> long unsigned int;
 auto prompt_restart() -> bool;
-template<typename T>
-  void print_set_by_column(const std::set<T>& set);
 void cls(const HANDLE& hConsole);
+
+template<typename T>
+void print_set_by_column(const std::set<T>& set);
+void print_console_colors(); // For Windows
 
 /////////////////////////////// Main Execution /////////////////////////////////
 
 int main(int argc, char* argv[])
 {
-  int input = 0;
+  long unsigned int input = 0;
 
   // Arguments handling
   if (argc > 1)
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
             show_usage(argv[0]);
             return 1;
           }
-          input = std::stoi(argv[++i]);
+          input = static_cast<long unsigned int>(std::stoi(argv[++i]));
         }
         else
         {
@@ -84,7 +85,9 @@ int main(int argc, char* argv[])
 
     // Get input and store in vector
     if (input == 0) { input = prompt_int_input(); }
-    for (int i = 1; i <= input; ++i) { integers.push_back(i); }
+
+    integers.resize(input);
+    for (long unsigned int i = 0; i < input; ++i) { integers[i] = (int)i + 1; }
 
     // Sieve vector of prime numbers and print the result
     sieve_of_eratosthenes(integers, primes);
@@ -107,6 +110,19 @@ int main(int argc, char* argv[])
 ////////////////////////// Function Declarations ///////////////////////////////
 
 
+static void show_usage(const std::string& name)
+{
+  std::cerr << "Usage: " << name << " [-h] [-c] [-p <int-piles>] [-s <int-stones>]\n"
+    << "\n"
+    << "Options:\n"
+    << "\n"
+    << "-n --number\tNumber to print all primes up to. Default = 2000\n"
+    << "-h --help\tShow usage\n"
+    << "\n"
+    << std::endl;
+}
+
+
 void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
 {
   HANDLE hStdout;
@@ -121,7 +137,6 @@ void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
     }
 
     int num = nums.at(i);
-
     if (num == 1) // Hide 1
     {
       SetConsoleTextAttribute(hStdout, 0);
@@ -131,7 +146,7 @@ void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
 
     // Sieve by multiple of primes already found
     bool newPrime = true;
-    for (auto prime : primes)
+    for (const auto& prime : primes)
     {
       // Assuming the set is sorted, only check if within the range of num
       if (num < prime) { break; }
@@ -152,17 +167,15 @@ void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
     {
       SetConsoleTextAttribute(hStdout, 8);
     }
-
     std::cout << std::setw(10) << num;
   }
-
   // Reset color to white
   SetConsoleTextAttribute(hStdout, 15);
 }
 
 
-auto prompt_int_input() -> int {
-  int input;
+auto prompt_int_input() -> long unsigned int {
+  long unsigned int input;
   std::cout << "\nEnter a integer: ";
   while (!(std::cin >> input))
   {
@@ -199,7 +212,7 @@ template<typename T>
   void print_set_by_column(const std::set<T>& set)
   {
     int i = 0;
-    for (auto value : set)
+    for (const auto& value : set)
     {
       if (i % 10 == 0) { std::cout << std::endl; }
       std::cout << std::setw(10) << value;
@@ -208,60 +221,7 @@ template<typename T>
   }
 
 
-// Clear screen, works for Windows and Unix
-// Ref: https://docs.microsoft.com/en-us/windows/console/clearing-the-screen
-void cls(const HANDLE& hConsole)
-{
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    SMALL_RECT scrollRect;
-    COORD scrollTarget;
-    CHAR_INFO fill;
-
-    // Get the number of character cells in the current buffer.
-    if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
-    {
-        return;
-    }
-
-    // Scroll the rectangle of the entire buffer.
-    scrollRect.Left = 0;
-    scrollRect.Top = 0;
-    scrollRect.Right = csbi.dwSize.X;
-    scrollRect.Bottom = csbi.dwSize.Y;
-
-    // Scroll it upwards off the top of the buffer with a magnitude of the entire height.
-    scrollTarget.X = 0;
-    scrollTarget.Y = (SHORT)(0 - csbi.dwSize.Y);
-
-    // Fill with empty spaces with the buffer's default text attribute.
-    fill.Char.UnicodeChar = TEXT(' ');
-    fill.Attributes = csbi.wAttributes;
-
-    // Do the scroll
-    ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, scrollTarget, &fill);
-
-    // Move the cursor to the top left corner too.
-    csbi.dwCursorPosition.X = 0;
-    csbi.dwCursorPosition.Y = 0;
-
-    SetConsoleCursorPosition(hConsole, csbi.dwCursorPosition);
-}
-
-
-static void show_usage(const std::string& name)
-{
-  std::cerr << "Usage: " << name << " [-h] [-c] [-p <int-piles>] [-s <int-stones>]\n"
-    << "\n"
-    << "Options:\n"
-    << "\n"
-    << "-n --number\tNumber to print all primes up to. Default = 2000\n"
-    << "-h --help\tShow usage\n"
-    << "\n"
-    << std::endl;
-}
-
-
-static void print_console_colors()
+void print_console_colors()
 {
   HANDLE handle;
   handle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -275,3 +235,45 @@ static void print_console_colors()
   // Reset color to white
   SetConsoleTextAttribute(handle, 15);
 }
+
+
+// Clear screen, works for Windows and Unix
+// Ref: https://docs.microsoft.com/en-us/windows/console/clearing-the-screen
+void cls(const HANDLE& hConsole)
+{
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  SMALL_RECT scrollRect;
+  COORD scrollTarget;
+  CHAR_INFO fill;
+
+  // Get the number of character cells in the current buffer.
+  if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
+  {
+    return;
+  }
+
+  // Scroll the rectangle of the entire buffer.
+  scrollRect.Left = 0;
+  scrollRect.Top = 0;
+  scrollRect.Right = csbi.dwSize.X;
+  scrollRect.Bottom = csbi.dwSize.Y;
+
+  // Scroll it upwards off the top of the buffer with a magnitude of the entire height.
+  scrollTarget.X = 0;
+  scrollTarget.Y = (SHORT)(0 - csbi.dwSize.Y);
+
+  // Fill with empty spaces with the buffer's default text attribute.
+  fill.Char.UnicodeChar = TEXT(' ');
+  fill.Attributes = csbi.wAttributes;
+
+  // Do the scroll
+  ScrollConsoleScreenBuffer(hConsole, &scrollRect, NULL, scrollTarget, &fill);
+
+  // Move the cursor to the top left corner too.
+  csbi.dwCursorPosition.X = 0;
+  csbi.dwCursorPosition.Y = 0;
+
+  SetConsoleCursorPosition(hConsole, csbi.dwCursorPosition);
+}
+
+
