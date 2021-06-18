@@ -113,15 +113,15 @@ E_GPROF		:= 0
 ################## DOES NOT NEED CHANGING BELOW THIS LINE ######################
 #==============================================================================#
 
-ifeq ($(MINGW_W32), 1)
-CC 		:= i686-w64-mingw32-g++
+ifeq ($(MINGW_W64), 1)
+CC 		:= x86_64-w64-mingw32-g++
 LD 		:= $(CC)
 LDFLAGS		+= -static-libgcc -static-libstdc++
 TARGET_EXT	:= .exe
 endif
 
-ifeq ($(MINGW_W64), 1)
-CC 		:= x86_64-w64-mingw32-g++
+ifeq ($(MINGW_W32), 1)
+CC 		:= i686-w64-mingw32-g++
 LD 		:= $(CC)
 LDFLAGS		+= -static-libgcc -static-libstdc++
 TARGET_EXT	:= .exe

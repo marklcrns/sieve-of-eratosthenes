@@ -28,5 +28,8 @@ Requirements
 ```sh
 # Simply run make from project root
 make
+
+# Building for 32-bit system (64-bit default)
+make MINGW_W32=1
 ```
 
