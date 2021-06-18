@@ -3,6 +3,8 @@
 C++ program compiled with [Mingw-w64](http://mingw-w64.org/doku.php) for
 Windows cross-compatibility.
 
+![Demo](./demo/prime_2000.gif)
+
 ## Usage
 
 For Windows, just simply run the program.
