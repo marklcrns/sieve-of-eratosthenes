@@ -112,13 +112,12 @@ int main(int argc, char* argv[])
 
 static void show_usage(const std::string& name)
 {
-  std::cerr << "Usage: " << name << " [-h] [-c] [-p <int-piles>] [-s <int-stones>]\n"
+  std::cerr << "Usage: " << name << " [-h] [-n <integer>]\n"
     << "\n"
     << "Options:\n"
     << "\n"
     << "-n --number\tNumber to print all primes up to. Default = 2000\n"
     << "-h --help\tShow usage\n"
-    << "\n"
     << std::endl;
 }
 
