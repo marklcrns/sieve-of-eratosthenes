@@ -1,0 +1,8 @@
+build*/
+prof/
+.cache/
+*.ccls
+*compile_flags.txt
+*log.txt
+*gmon.out
+*.gdb
