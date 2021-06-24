@@ -9,10 +9,10 @@
 
 ///////////////////////////// Function Prototyes ///////////////////////////////
 
-static void show_usage(const std::string& name);
+static void show_usage(const std::string&);
 
-void sieve_of_eratosthenes(const std::vector<int>& vec, std::set<int>& primes);
-auto prompt_int_input() -> long unsigned int;
+void sieve_of_eratosthenes(int, std::set<int>&);
+auto prompt_int_input() -> int;
 auto prompt_restart() -> bool;
 void cls(const HANDLE& hConsole);
 
@@ -24,7 +24,7 @@ void print_console_colors(); // For Windows
 
 int main(int argc, char* argv[])
 {
-  long unsigned int input = 0;
+  int input = 0;
 
   // Arguments handling
   if (argc > 1)
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
             show_usage(argv[0]);
             return 1;
           }
-          input = static_cast<long unsigned int>(std::stoi(argv[++i]));
+          input = static_cast<int>(std::stoi(argv[++i]));
         }
         else
         {
@@ -79,18 +79,14 @@ int main(int argc, char* argv[])
 
   do
   {
-    integers.clear();
     primes.clear();
     cls(hStdout);
 
     // Get input and store in vector
     if (input == 0) { input = prompt_int_input(); }
 
-    integers.resize(input);
-    for (long unsigned int i = 0; i < input; ++i) { integers[i] = (int)i + 1; }
-
     // Sieve vector of prime numbers and print the result
-    sieve_of_eratosthenes(integers, primes);
+    sieve_of_eratosthenes(input, primes);
     std::cout << "\n\nAll the primes sieved below:" << std::endl;
     print_set_by_column(primes);
 
@@ -122,12 +118,14 @@ static void show_usage(const std::string& name)
 }
 
 
-void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
+void sieve_of_eratosthenes(int num, std::set<int>& primes)
 {
+  std::vector<int> integers;
+
   HANDLE hStdout;
   hStdout= GetStdHandle(STD_OUTPUT_HANDLE);
 
-  for (size_t i = 0; i < nums.size(); ++i)
+  for (int i = 1; i <= num; ++i)
   {
     // New line after 10 numbers in a row
     if (i % 10 == 0)
@@ -135,11 +133,10 @@ void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
       std::cout << std::endl;
     }
 
-    int num = nums.at(i);
-    if (num == 1) // Hide 1
+    if (i == 1) // Hide 1
     {
       SetConsoleTextAttribute(hStdout, 0);
-      std::cout << std::setw(10) << num;
+      std::cout << std::setw(10) << i;
       continue;
     }
 
@@ -148,9 +145,9 @@ void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
     for (const auto& prime : primes)
     {
       // Assuming the set is sorted, only check if within the range of num
-      if (num < prime) { break; }
+      if (i < prime) { break; }
 
-      if (num % prime == 0)
+      if (i % prime == 0)
       {
         newPrime = false;
         break;
@@ -159,22 +156,22 @@ void sieve_of_eratosthenes(const std::vector<int>& nums, std::set<int>& primes)
 
     if (newPrime) // Color prime
     {
-      primes.insert(num);
+      primes.insert(i);
       SetConsoleTextAttribute(hStdout, 10);
     }
     else // No color composite
     {
       SetConsoleTextAttribute(hStdout, 8);
     }
-    std::cout << std::setw(10) << num;
+    std::cout << std::setw(10) << i;
   }
   // Reset color to white
   SetConsoleTextAttribute(hStdout, 15);
 }
 
 
-auto prompt_int_input() -> long unsigned int {
-  long unsigned int input;
+auto prompt_int_input() -> int {
+  int input;
   std::cout << "\nEnter a integer: ";
   while (!(std::cin >> input))
   {
